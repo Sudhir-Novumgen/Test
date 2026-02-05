@@ -472,12 +472,20 @@ if uploaded_file:
                 
                 display_cols = ['Rank', 'User', 'Total Hours', 'Avg Performance', 'Total Days', 'Total Gap']
                 
+                # Color code function for performance
+                def color_performance(val):
+                    if val >= 100:
+                        color = '#d4edda'  # Green
+                    elif val >= 90:
+                        color = '#fff3cd'  # Yellow
+                    else:
+                        color = '#f8d7da'  # Red
+                    return f'background-color: {color}'
+                
                 st.dataframe(
-                    user_summary[display_cols].style.background_gradient(
-                        subset=['Avg Performance'],
-                        cmap='RdYlGn',
-                        vmin=80,
-                        vmax=110
+                    user_summary[display_cols].style.applymap(
+                        color_performance,
+                        subset=['Avg Performance']
                     ),
                     use_container_width=True,
                     height=400
@@ -520,15 +528,33 @@ if uploaded_file:
                     "Status"
                 ]
                 
+                # Color code functions
+                def color_status(val):
+                    if val == '✅ Met':
+                        return 'background-color: #d4edda'
+                    else:
+                        return 'background-color: #f8d7da'
+                
+                def color_performance_detailed(val):
+                    try:
+                        val_num = float(val)
+                        if val_num >= 100:
+                            color = '#d4edda'  # Green
+                        elif val_num >= 90:
+                            color = '#fff3cd'  # Yellow
+                        else:
+                            color = '#f8d7da'  # Red
+                        return f'background-color: {color}'
+                    except:
+                        return ''
+                
                 # Style the dataframe
                 styled_df = display_df.style.applymap(
-                    lambda x: 'background-color: #d4edda' if x == '✅ Met' else 'background-color: #f8d7da',
+                    color_status,
                     subset=['Status']
-                ).background_gradient(
-                    subset=['Performance (%)'],
-                    cmap='RdYlGn',
-                    vmin=80,
-                    vmax=110
+                ).applymap(
+                    color_performance_detailed,
+                    subset=['Performance (%)']
                 )
                 
                 st.dataframe(styled_df, use_container_width=True, height=500)
